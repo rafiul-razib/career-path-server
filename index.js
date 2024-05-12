@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000
 
@@ -27,10 +27,49 @@ async function run() {
     const jobCollection = database.collection("jobCollection");
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    app.get("/allJobs", async(req, res)=>{
+        const cursor = jobCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.get("/onSiteJobs", async(req, res)=>{
+        const query = {"jobCategory":"On-site Job"};
+        const cursor = jobCollection.find(query);
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+
+    app.get("/remoteJobs", async(req, res)=>{
+      const query = {"jobCategory":"Remote Job"};
+      const cursor = jobCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+    app.get("/hybridJobs", async(req, res)=>{
+      const query = {"jobCategory":"Hybrid"};
+      const cursor = jobCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+    app.get("/partTimeJobs", async(req, res)=>{
+      const query = {"jobCategory":"Part-Time"};
+      const cursor = jobCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result)
+    })
+
+    app.get("/job/:id", async(req, res)=>{
+      const id = req.params.id;
+      const cursor = {_id: new ObjectId(id)};
+      const result = await jobCollection.findOne(cursor);
+      res.send(result)
+    })
+    
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
