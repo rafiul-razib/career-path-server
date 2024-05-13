@@ -70,6 +70,16 @@ async function run() {
       res.send(result)
     })
 
+    app.get("/myJobs", async(req, res)=>{
+      let query = {};
+      if(req.query?.email){
+        query = {user: req.query.email}
+      }
+      const result = await jobCollection.find(query).toArray();
+        console.log(result)
+        res.send(result)
+    })
+
     app.post("/addJob", async(req, res)=>{
       const job = req.body;
       const result = await jobCollection.insertOne(job);
