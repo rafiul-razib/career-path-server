@@ -69,6 +69,12 @@ async function run() {
       const result = await jobCollection.findOne(cursor);
       res.send(result)
     })
+
+    app.post("/addJob", async(req, res)=>{
+      const job = req.body;
+      const result = await jobCollection.insertOne(job);
+      res.send(result)
+    })
     
   } finally {
     // Ensures that the client will close when you finish/error
