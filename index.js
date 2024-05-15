@@ -25,6 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
     const database = client.db("career_path");
     const jobCollection = database.collection("jobCollection");
+    const appliedJobsCollection = database.collection("appliedJobsCollection");
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
@@ -82,6 +83,19 @@ async function run() {
     app.post("/addJob", async(req, res)=>{
       const job = req.body;
       const result = await jobCollection.insertOne(job);
+      res.send(result)
+    })
+
+    app.post("/appliedJob/:id", async(req, res)=>{
+      const job = req.body;
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const updateResult = await jobCollection.updateOne(filter, {$inc:{"totalApplicants":1}})
+      if(updateResult.modifiedCount === 0){
+        throw new Error("Failed to update jobCollection")
+      }
+      const result = await appliedJobsCollection.insertOne(job);
+      
       res.send(result)
     })
 
