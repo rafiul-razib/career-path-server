@@ -9,7 +9,11 @@ const port = process.env.PORT || 3000
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5173',
+    'https://career-path-3991e.web.app',
+    'https://career-path-3991e.firebaseapp.com'
+
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -42,6 +46,12 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+const cookieOption = {
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === "production"? "none" : "strict",
+  secure: process.env.NODE_ENV === "production"? true : false,
+}
 
 async function run() {
     const database = client.db("career_path");
@@ -116,11 +126,7 @@ async function run() {
       res.send(result)
     })
 
-    app.post("/logout", async(req, res)=>{
-      const user = req.body;
-      console.log("logging out", user);
-      res.clearCookie('token', {maxAge: 0}).send({success:true})
-    })
+    
 
     app.get("/appliedJob", verifyToken, async(req, res)=>{
       console.log("query", req.query.email);
@@ -155,11 +161,20 @@ async function run() {
       console.log("user of the token",user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: 3600});
       res
-      .cookie('token', token, {
-        httpOnly: true,
-        secure: false,
-      })
+      .cookie('token', token, cookieOption)
       .send({success : true})
+
+      // .cookie('token', token, {
+      //   httpOnly: true,
+      //   secure: false,
+      // })
+    })
+
+    app.post("/logout", async(req, res)=>{
+      const user = req.body;
+      console.log("logging out", user);
+      res.clearCookie('token', {...cookieOption, maxAge: 0}).send({success:true})
+      // res.clearCookie('token', {maxAge: 0}).send({success:true})
     })
 
     app.delete("/myJobs/:id", async(req, res)=>{
