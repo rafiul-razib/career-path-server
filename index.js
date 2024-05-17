@@ -184,23 +184,24 @@ async function run() {
       res.send(result)
     })
 
-    app.patch("/job/:id", async(req, res)=>{
+    app.put("/updatejob/:id", async(req, res)=>{
       const id = req.params.id;
-      const job = req.body;
+      const updatedJob = req.body;
       const filter = {_id: new ObjectId(id)};
-      const updatedJob = {
+      const updatedJob2 = {
         $set:{
-          photoUrl: job.photoUrl,
-          jobTitle: job.jobTitle,
-          jobCategory: job.jobCategory,
-          salaryRange: job.salaryRange,
-          jobDescription: job.jobDescription,
-          jobPosting: job.jobPosting,
-          deadline: job.deadline,
-          totalApplicants: job.totalApplicants
+          photoUrl: updatedJob.photoUrl,
+          jobTitle: updatedJob.jobTitle,
+          jobCategory: updatedJob.jobCategory,
+          salaryRange: updatedJob.salaryRange,
+          jobDescription: updatedJob.jobDescription,
+          jobPosting: updatedJob.jobPosting,
+          deadline: updatedJob.deadline,
+          totalApplicants: updatedJob.totalApplicantsNumber
         }
       } 
-      const result = await jobCollection.updateOne(filter, updatedJob);
+      const option = {upsert : true}
+      const result = await jobCollection.updateOne(filter, updatedJob2, option);
       res.send(result)
     })
     
